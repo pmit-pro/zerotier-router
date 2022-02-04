@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zerotier-router
+  namespace: default
+  labels:
+    app: zerotier-router
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zerotier-router
+  template:
+    metadata:
+      name: zerotier-router
+      labels:
+        app: zerotier-router
+    spec:
+      securityContext:
+        sysctls:
+          - name: net.ipv4.ip_forward
+            value: "1"
+      containers:
+        - name: zerotier-router
+          image: pixelwarriors/zerotier:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9993
+              name: zerotier
+              protocol: UDP
+          envFrom:
+            - configMapRef:
+                name: zerotier-config
+          env:
+            - name: ZT_NETWORKS
+              valueFrom:
+                secretKeyRef:
+                  name: zerotier-secrets
+                  key: ZT_NETWORKS
+            - name: ZT_ID_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: zerotier-secrets
+                  key: ZT_ID_PUBLIC
+            - name: ZT_ID_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: zerotier-secrets
+                  key: ZT_ID_SECRET
+          securityContext:
+            # privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+          volumeMounts:
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+              readOnly: true
+            - name: zerotier-data
+              mountPath: /var/lib/zerotier-one
+      volumes:
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+        - name: zerotier-data
+          persistentVolumeClaim:
+            claimName: zerotier-data

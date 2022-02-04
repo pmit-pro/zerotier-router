@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zerotier-config
+  namespace: default
+data:
+  ZT_IFNAME: ""

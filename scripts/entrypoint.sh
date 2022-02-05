@@ -6,6 +6,7 @@
 # Exit immediately if we get an error
 set -e
 
+# Exit if we get SIGTER/SIGINT signal
 trap 'exit 0' SIGTERM SIGINT
 
 # Check if we have the /dev/net/tun device available
@@ -20,8 +21,9 @@ if [ -z "${ZT_NETWORKS}" ]; then
   exit 1
 fi
 
-# Check if we have existing public/secret identity information provided and if so copy them to ZT config
-# if no identity information is provided we simply generate new public/secret infos
+# Check if we have existing public/secret identity information provided and if so copy them to ZT config,
+# or use the existing identity stored in /var/lib/zerotier-one
+# If no identity information is provided we simply generate new public/secret infos
 if [ -n "${ZT_ID_PUBLIC}" ] && [ -n "${ZT_ID_SECRET}" ]; then
   echo 'INFO: Using identity configured in env variables'
   echo "${ZT_ID_PUBLIC}" > /var/lib/zerotier-one/identity.public
@@ -48,18 +50,28 @@ sleep 5
 echo "INFO: $(zerotier-cli listnetworks)"
 echo "INFO: $(zerotier-cli info)"
 
-# Configure iptables masquerading
-# If no interface name is specified assume eth0 pod/container traffic
-iptables -t nat -o "${ZT_IFNAME:-eth0}" -A POSTROUTING -j MASQUERADE
-iptables -A FORWARD -i zt+ -o "${ZT_IFNAME:-eth0}" -j ACCEPT
-iptables -A FORWARD -i "${ZT_IFNAME:-eth0}" -m state --state RELATED,ESTABLISHED -j ACCEPT
+if [ "${ZT_ENABLE_FORWARD}" = true ] ; then
+  echo "INFO: Enabling IP forwarding..."
+  # Configure iptables forwarding and masquerade
+  # If no interface name is specified assume eth0 pod/container traffic
+  iptables -A FORWARD -i zt+ -o "${ZT_IFNAME:-eth0}" -j ACCEPT
+  iptables -A FORWARD -i "${ZT_IFNAME:-eth0}" -m state --state RELATED,ESTABLISHED -j ACCEPT
 
+  if [ "${ZT_ENABLE_MASQUERADE}" = true ] ; then
+    echo "INFO: Enabling masquerade for outbound interface "${ZT_IFNAME:-eth0}""
+    iptables -t nat -o "${ZT_IFNAME:-eth0}" -A POSTROUTING -j MASQUERADE
+  fi
 
-# Enable ip forwarding
-# Since this may fail in kubernetes where sysctls are controlled by the cluster
-# we do not exit immediately
-set +e
-sysctl -w net.ipv4.ip_forward=1
+  # Enable ip forwarding kernel parameter
+  # This may fail in kubernetes environments where sysctls are controlled by the cluster / kubelet
+  if [ "$(sysctl net.ipv4.ip_forward | awk -F "= " '{print $2}')" -eq 0 ] ; then
+    echo "INFO: Trying to enable net.ipv4.ip_forward kernel parameter"
+    sysctl -w net.ipv4.ip_forward=1
+  else
+    echo "INFO: net.ipv4.ip_forward already enabled"
+  fi
+fi
+
 
 while :; do
   sleep 1

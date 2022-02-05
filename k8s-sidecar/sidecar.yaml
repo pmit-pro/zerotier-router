@@ -65,7 +65,12 @@ spec:
             - name: dev-net-tun
               mountPath: /dev/net/tun
               readOnly: true
+            - name: zerotier-data
+              mountPath: /var/lib/zerotier-one
       volumes:
         - name: dev-net-tun
           hostPath:
             path: /dev/net/tun
+        - name: zerotier-data
+          persistentVolumeClaim:
+            claimName: zerotier-sidecar-data

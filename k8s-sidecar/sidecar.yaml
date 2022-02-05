@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zerotier-sidecar
+  namespace: default
+  labels:
+    app: zerotier-sidecar
+spec:
+  replicas: 1
+  selector:
+    matchLabel:
+      app: zerotier-sidecar
+  template:
+    metadata:
+      name: zerotier-sidecar
+      labels:
+        app: zerotier-sidecar
+    spec:
+      securityContext:
+        sysctls:
+          - name: net.ipv4.ip_forward
+            value: "1"
+      containers:
+        - name: whoami
+          image: containous/whoami
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8001
+              protocol: TCP
+            - name: https
+              containerPort: 8002
+              protocol: TCP
+        - name: zerotier-sidecar
+          image: zerotier/zerotier:latest
+          args: ["35c192ce9b425ba6"]
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+          volumeMounts:
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+              readOnly: true

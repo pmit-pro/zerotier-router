@@ -22,7 +22,7 @@ spec:
             value: "1"
       containers:
         - name: zerotier-router
-          image: pixelwarriors/zerotier:latest
+          image: ghcr.io/pmit-pro/zerotier-router
           imagePullPolicy: Always
           ports:
             - containerPort: 9993

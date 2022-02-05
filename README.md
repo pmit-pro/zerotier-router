@@ -29,8 +29,8 @@ kubectl apply -f k8s/deployment.yaml
 ```
 Per default kubernetes does not allow the usage of the **net.ipv4.ip_forward** kernel parameter for pods. There are two solutions for this problem:
 1. Uncomment the *privileged: true* line in deployment.yaml to run the pod in privileged mode (not recommended)
-2. Allow the **net.ipv4.ip_forward** kernel parameter in your kubelet configuration by adding the following argument to your kubelet service
+2. Allow the **net.ipv4.ip_forward** kernel parameter in your kubelet configuration by adding the following argument to your kubelet service and then
+   restart your kubelet service
 ```sh
 --allow-unsafe-sysctls="net.ipv4_ip_forward"
 ```
-3. Restart kubelet service

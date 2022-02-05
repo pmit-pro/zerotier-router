@@ -70,6 +70,22 @@ if [ "${ZT_ENABLE_FORWARD}" = true ] ; then
   else
     echo "INFO: net.ipv4.ip_forward already enabled"
   fi
+else
+  echo "INFO: IP forwarding is disabled in config - configuring iptables policy to drop FORWARD"
+  iptables -P FORWARD DROP
+
+  if [ "$(sysctl net.ipv4.ip_forward | awk -F "= " '{print $2}')" -eq 1 ] ; then
+    echo "WARNING: IP forwarding disabled in config but net.ipv4.ip_forward kernel parameter is enabled"
+    echo "WARNING: !!! THIS IS INSECURE !!!"
+    echo "WARNING: Check your pod/container privileges!"
+    echo "INFO: Trying to disable net.ipv4.ip_forward kernel parameter"
+    
+    # Since this may fail because of readonly filesystem on kubernetes fail gracefully but continue running
+    set +e
+    sysctl -w net.ipv4.ip_forward=0
+    set -e
+  fi
+
 fi
 
 

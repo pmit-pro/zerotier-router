@@ -54,7 +54,11 @@ iptables -t nat -o "${ZT_IFNAME:-eth0}" -A POSTROUTING -j MASQUERADE
 iptables -A FORWARD -i zt+ -o "${ZT_IFNAME:-eth0}" -j ACCEPT
 iptables -A FORWARD -i "${ZT_IFNAME:-eth0}" -m state --state RELATED,ESTABLISHED -j ACCEPT
 
+
 # Enable ip forwarding
+# Since this may fail in kubernetes where sysctls are controlled by the cluster
+# we do not exit immediately
+set +e
 sysctl -w net.ipv4.ip_forward=1
 
 while :; do

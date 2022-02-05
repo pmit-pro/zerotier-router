@@ -42,3 +42,7 @@ spec:
             - name: dev-net-tun
               mountPath: /dev/net/tun
               readOnly: true
+      volumes:
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun

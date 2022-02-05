@@ -40,7 +40,7 @@ spec:
               protocol: UDP
           envFrom:
             - configMapRef:
-                name: zerotier-config
+                name: zerotier-sidecar-config
           env:
             - name: ZT_NETWORKS
               valueFrom:

@@ -32,8 +32,31 @@ spec:
               containerPort: 8002
               protocol: TCP
         - name: zerotier-sidecar
-          image: zerotier/zerotier:latest
-          args: ["35c192ce9b425ba6"]
+          image: ghcr.io/pmit-pro/zerotier-router
+          imagePullPolicy: Always
+          ports:
+            - name: zerotier
+              containerPort: 9993
+              protocol: UDP
+          envFrom:
+            - configMapRef:
+                name: zerotier-config
+          env:
+            - name: ZT_NETWORKS
+              valueFrom:
+                secretKeyRef:
+                  name: zerotier-secrets
+                  key: ZT_NETWORKS
+            - name: ZT_ID_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: zerotier-secrets
+                  key: ZT_ID_PUBLIC
+            - name: ZT_ID_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: zerotier-secrets
+                  key: ZT_ID_SECRET
           securityContext:
             capabilities:
               add:

@@ -6,9 +6,6 @@
 # Exit immediately if we get an error
 set -e
 
-# Exit if we get SIGTER/SIGINT signal
-trap 'exit 0' SIGTERM SIGINT
-
 # Check if we have the /dev/net/tun device available
 if [ ! -e /dev/net/tun ]; then
   echo 'FATAL: /dev/net/tun not available - check permissions and mountpath'
@@ -37,15 +34,41 @@ else
 fi
 
 # Start zerotier daemon and wait for startup
-zerotier-one -d
+zerotier-one &
+zt_pid=$!
 sleep 1
 
-  echo $(zerotier-cli listnetworks | grep "$1" | grep -o ACCESS_DENIED)
-  echo "INFO: Joining network ${network}... $(zerotier-cli join "${network}")"
-done
+# Function to get the network IP
+GetIP() {
+  echo $(zerotier-cli listnetworks | grep "$1" | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}")
+}
 
-# Wait for network joins
-sleep 5
+GetAccessDenied() {
+  echo $(zerotier-cli listnetworks | grep "$1" | grep -o ACCESS_DENIED)
+}
+
+IFS=',' read -a netarray <<< "${ZT_NETWORKS}"
+
+for network in ${netarray[*]} ; do
+  echo "INFO: Joining network ${network}... $(zerotier-cli join "${network}")"
+
+  timeout=10
+  while [ $timeout -gt 0 ] ; do
+    ip=$(GetIP "$network")
+    if [ ! -z "$ip" ] ; then
+      echo "INFO: Got IP "$ip" for network "$network""
+      break
+    fi
+    if [ ! -z $(GetAccessDenied "$network") ] ; then
+      echo "WARNING: Access denied to network "$network" - Please approve client in network controller"
+    fi
+    sleep 5
+    timeout=$((timeout-1))
+    if [ $timeout -eq 0 ] ; then
+      echo "ERROR: Timeout while waiting for IP"
+    fi
+  done
+done
 
 echo "INFO: $(zerotier-cli listnetworks)"
 echo "INFO: $(zerotier-cli info)"
@@ -80,7 +103,7 @@ else
     echo "WARNING: Check your pod/container privileges!"
     echo "INFO: Trying to disable net.ipv4.ip_forward kernel parameter"
     
-    # Since this may fail because of readonly filesystem on kubernetes fail gracefully but continue running
+    # Since this may fail because of readonly filesystem on docker/kubernetes unprivileged containers fail gracefully but continue running
     set +e
     sysctl -w net.ipv4.ip_forward=0
     set -e
@@ -88,7 +111,6 @@ else
 
 fi
 
-
-while :; do
-  sleep 1
-done
+wait $zt_pid
+echo "ZeroTier-One process terminated"
+exit $?

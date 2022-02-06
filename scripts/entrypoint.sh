@@ -33,6 +33,9 @@ else
   zerotier-idtool getpublic /var/lib/zerotier-one/identity.secret > /var/lib/zerotier-one/identity.public
 fi
 
+# Clear the list of known networks before starting zerotier so we don't join networks that may be stored on a mounted volume
+rm -r /var/lib/zerotier-one/networks.d/* &> /dev/null
+
 # Start zerotier daemon and wait for startup
 zerotier-one &
 zt_pid=$!

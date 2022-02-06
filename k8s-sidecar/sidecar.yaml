@@ -32,7 +32,7 @@ spec:
               containerPort: 8002
               protocol: TCP
         - name: zerotier-sidecar
-          image: ghcr.io/pmit-pro/zerotier-router:sidecar
+          image: ghcr.io/pmit-pro/zerotier-router
           imagePullPolicy: Always
           ports:
             - name: zerotier

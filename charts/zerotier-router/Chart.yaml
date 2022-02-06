@@ -1,6 +1,6 @@
 apiVersion: v2
 name: zerotier-router
-version: 0.1.0
+version: 0.1.1
 description: Kubernetes ZeroTier-router
 home: https://github.com/pmit-pro/zerotier-router
 sources:

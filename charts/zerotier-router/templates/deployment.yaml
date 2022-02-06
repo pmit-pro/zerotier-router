@@ -12,8 +12,8 @@ spec:
   replicas: {{ .Values.deployment.replicas }}
   selector:
     matchLabels:
-    app.kubernetes.io/name: {{ template "zerotierrouter.fullname" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: {{ template "zerotierrouter.fullname" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:

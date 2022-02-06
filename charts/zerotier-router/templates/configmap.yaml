@@ -4,6 +4,6 @@ metadata:
   name: {{ template "zerotierrouter.fullname" . }}
   namespace: {{ .Release.Namespace }}
 data:
-  ZT_IFNAME: {{ .Values.config.internalInterfaceName }}
-  ZT_ENABLE_FORWARD: {{ .Values.config.enableForwarding }}
-  ZT_ENABLE_MASQUERADE: {{ .Values.config.enableMasquerade }}
+  ZT_IFNAME: {{ .Values.config.internalInterfaceName | quote }}
+  ZT_ENABLE_FORWARD: {{ .Values.config.enableForwarding | quote }}
+  ZT_ENABLE_MASQUERADE: {{ .Values.config.enableMasquerade | quote }}

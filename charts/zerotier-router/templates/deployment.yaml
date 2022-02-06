@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "zerotierrouter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ template "zerotierrouter.fullname" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    helm.sh/chart: {{ template "zerotierrouter.chart" . }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+    app.kubernetes.io/name: {{ template "zerotierrouter.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ template "zerotierrouter.fullname" . }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        helm.sh/chart: {{ template "zerotierrouter.chart" . }}
+    spec:
+    {{- if .Values.config.enableForwarding }}
+      securityContext:
+        sysctls:
+          - name: net.ipv4.ip_forward
+            value: "1"
+    {{- end }}
+      containers:
+        - name: {{ template "zerotierrouter.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: zerotier
+              containerPort: 9993
+              protocol: UDP
+          envFrom:
+            - configMapRef:
+                name: {{ template "zerotierrouter.fullname" . }}
+          env:
+            - name: ZT_NETWORKS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "zerotierrouter.fullname" . }}
+                  key: ZT_NETWORKS
+            - name: ZT_ID_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "zerotierrouter.fullname" . }}
+                  key: ZT_ID_PUBLIC
+            - name: ZT_ID_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "zerotierrouter.fullname" . }}
+                  key: ZT_ID_SECRET
+          securityContext:
+          {{- if .Values.config.runPrivileged }}
+            privileged: true
+          {{- end }}
+            capabilities:
+              add:
+                - NET_ADMIN
+          volumeMounts:
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+              readOnly: true
+            - name: zerotier-data
+              mountPath: /var/lib/zerotier-one
+      volumes:
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+        - name: zerotier-data
+          persistentVolumeClaim:
+            claimName: {{ template "zerotierrouter.fullname" . }}

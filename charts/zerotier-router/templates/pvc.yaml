@@ -5,7 +5,7 @@ metadata:
   name: {{ template "zerotierrouter.fullname" . }}
   namespace: {{ .Release.Namespace }}
 spec:
-  storageClassName: {{ .Values.storage.storageClass }}
+  storageClassName: {{ .Values.storage.storageClass | quote }}
   accessModes:
     - {{ .Values.storage.accessMode }}
   resources:

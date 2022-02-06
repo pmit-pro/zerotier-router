@@ -40,7 +40,7 @@ fi
 zerotier-one -d
 sleep 1
 
-for network in ${ZT_NETWORKS}; do
+  echo $(zerotier-cli listnetworks | grep "$1" | grep -o ACCESS_DENIED)
   echo "INFO: Joining network ${network}... $(zerotier-cli join "${network}")"
 done
 

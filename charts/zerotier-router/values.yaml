@@ -1,0 +1,23 @@
+
+image:
+  repository: ghcr.io/pmit-pro/zerotier-router
+  tag: helm
+  pullPolicy: Always
+
+config:
+  internalInterfaceName: ""
+  enableForwarding: true
+  enableMasquerade: true
+  networkIds: ""
+  identityPublic: ""
+  identitySecret: ""
+  runPrivileged: false
+
+storage:
+  enabled: true
+#  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 20Mi
+
+deployment:
+  replicas: 1

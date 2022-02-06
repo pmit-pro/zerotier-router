@@ -1,4 +1,4 @@
-name: SidecarBranch
+name: HelmBranch
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -9,11 +9,11 @@ on:
   schedule:
     - cron: '34 0 * * *'
   push:
-    branches: [ sidecar ]
+    branches: [ helm ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
   pull_request:
-    branches: [ sidecar ]
+    branches: [ helm ]
 
 env:
   # Use docker.io for Docker Hub if empty

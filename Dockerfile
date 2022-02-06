@@ -7,10 +7,10 @@ RUN apk add --no-cache \
         zerotier-one \
         iptables \
         bash \
+        tini \
     && echo "tun" >> /etc/modules \
     && chmod +x /entrypoint.sh
 
 EXPOSE 9993/udp
 
-ENTRYPOINT ["/entrypoint.sh"]
-
+ENTRYPOINT ["/sbin/tini", "--", "/entrypoint.sh"]

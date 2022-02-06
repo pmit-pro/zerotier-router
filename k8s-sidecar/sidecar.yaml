@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zerotier-sidecar
+  namespace: default
+  labels:
+    app: zerotier-sidecar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zerotier-sidecar
+  template:
+    metadata:
+      name: zerotier-sidecar
+      labels:
+        app: zerotier-sidecar
+    spec:
+      #securityContext:
+      #  sysctls:
+      #    - name: net.ipv4.ip_forward
+      #      value: "1"
+      containers:
+        - name: whoami
+          image: containous/whoami
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8001
+              protocol: TCP
+            - name: https
+              containerPort: 8002
+              protocol: TCP
+        - name: zerotier-sidecar
+          image: ghcr.io/pmit-pro/zerotier-router:sidecar
+          imagePullPolicy: Always
+          ports:
+            - name: zerotier
+              containerPort: 9993
+              protocol: UDP
+          envFrom:
+            - configMapRef:
+                name: zerotier-sidecar-config
+          env:
+            - name: ZT_NETWORKS
+              valueFrom:
+                secretKeyRef:
+                  name: zerotier-secrets
+                  key: ZT_NETWORKS
+            - name: ZT_ID_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: zerotier-secrets
+                  key: ZT_ID_PUBLIC
+            - name: ZT_ID_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: zerotier-secrets
+                  key: ZT_ID_SECRET
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+          volumeMounts:
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+              readOnly: true
+            - name: zerotier-data
+              mountPath: /var/lib/zerotier-one
+      volumes:
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+        - name: zerotier-data
+          persistentVolumeClaim:
+            claimName: zerotier-sidecar-data

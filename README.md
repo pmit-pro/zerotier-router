@@ -12,7 +12,7 @@ packets from the ZeroTier interface to the container interface.
 
 ### Docker usage
 ```sh
-docker run -d --cap-add=NET_ADMIN --name zt -env ZT_NETWORKS="<NetworkID>" \
+docker run -d --cap-add=NET_ADMIN --name zt --env ZT_NETWORKS="<NetworkID>" \
     -v ztvol:/var/lib/zerotier-one \
     -v /dev/net/tun:/dev/net/tun \
     ghcr.io/pmit-pro/zerotier-router
@@ -21,6 +21,11 @@ The volume is needed to save the identity information of the ZeroTier instance -
 Another way of providing identity information is to set the ZT_ID_PUBLIC and ZT_ID_SECRET environment variables (These have precedence and, if present, OVERWRITE the identity information already stored on a volume).
 
 ### Kubernetes usage
+```sh
+helm repo add zerotier-router https://pmit-pro.github.io/zerotier-router
+helm repo update
+helm install zerotier-router zerotier-router/zerotier-router
+```
 ```sh
 kubectl apply -f k8s/configmap.yaml
 kubectl apply -f k8s/secrets.yaml

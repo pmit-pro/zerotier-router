@@ -34,9 +34,13 @@ else
 fi
 
 # Clear the list of known networks before starting zerotier so we don't join networks that may be stored on a mounted volume
+echo 'INFO: Removing known networks...'
+set +e
 rm -r /var/lib/zerotier-one/networks.d/* &> /dev/null
+set -e
 
 # Start zerotier daemon and wait for startup
+echo 'INFO: Starting ZeroTier engine...'
 zerotier-one &
 zt_pid=$!
 sleep 1

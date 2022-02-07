@@ -37,5 +37,5 @@ Per default kubernetes does not allow the usage of the **net.ipv4.ip_forward** k
 2. Allow the **net.ipv4.ip_forward** kernel parameter in your kubelet configuration by adding the following argument to your kubelet service and then
    restart your kubelet service
 ```sh
---allow-unsafe-sysctls="net.ipv4.ip_forward"
+--allowed-unsafe-sysctls="net.ipv4.ip_forward"
 ```

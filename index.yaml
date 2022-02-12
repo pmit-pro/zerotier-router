@@ -3,6 +3,21 @@ entries:
   zerotier-router:
   - apiVersion: v2
     appVersion: 1.8.3
+    created: "2022-02-12T01:37:58.452478332Z"
+    description: Kubernetes ZeroTier-router
+    digest: 6d19d63730939639c8ff969ad55dec143ba436c95ab881fb0d4bd3831d40fe93
+    home: https://github.com/pmit-pro/zerotier-router
+    maintainers:
+    - email: pm@pixelwarriors.net
+      name: Markus Past
+    name: zerotier-router
+    sources:
+    - https://github.com/pmit-pro/zerotier-router
+    urls:
+    - https://github.com/pmit-pro/zerotier-router/releases/download/zerotier-router-0.1.5/zerotier-router-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
+    appVersion: 1.8.3
     created: "2022-02-08T08:36:44.688145261Z"
     description: Kubernetes ZeroTier-router
     digest: 4afc392d7324f16e04a0ffd0c9ea46c9158305a41f888bccd83df5e65cec7bad

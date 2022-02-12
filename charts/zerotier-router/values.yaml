@@ -13,11 +13,21 @@ config:
   identitySecret: ""
   runPrivileged: false
 
+secret:
+  annotations: {}
+  labels: {}
+
 storage:
   enabled: true
 #  storageClass: ""
   accessMode: ReadWriteOnce
   size: 20Mi
+  annotations: {}
+  labels: {}
 
 deployment:
   replicas: 1
+  annotations: {}
+  podAnnotations: {}
+  labels: {}
+  podLabels: {}

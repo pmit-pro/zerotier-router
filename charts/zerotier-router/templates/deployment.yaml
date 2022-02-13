@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "zerotierrouter.fullname" . }}
-  {{ - if .Values.global.namespace }}
+  {{- if .Values.global.namespace }}
   namespace: {{ .Values.global.namespace }}
-  {{ - end }}
+  {{- end }}
   labels:
     app.kubernetes.io/name: {{ template "zerotierrouter.fullname" . }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}

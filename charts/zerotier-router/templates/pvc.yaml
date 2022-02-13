@@ -3,9 +3,9 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ template "zerotierrouter.fullname" . }}
-  {{ - if .Values.global.namespace }}
+  {{- if .Values.global.namespace }}
   namespace: {{ .Values.global.namespace }}
-  {{ - end }}
+  {{- end }}
   labels:
   {{- with .Values.storage.labels }}
   {{- toYaml . | nindent 4 }}

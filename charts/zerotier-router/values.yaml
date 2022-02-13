@@ -1,5 +1,5 @@
 global:
-#  namespace: ""
+  namespace: ""
 
 image:
   repository: ghcr.io/pmit-pro/zerotier-router
